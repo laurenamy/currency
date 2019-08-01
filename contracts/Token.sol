@@ -4,28 +4,27 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
 contract Token is ERC20, ERC20Detailed {
-  constructor() ERC20Detailed("Gold", "GLD", 18) public {
-    // _mint(msg.sender, initialSupply);
+  uint40 public startTime;
+  uint40 public endTime;
+
+  mapping(address => Token) public tokens;
+  constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply) ERC20Detailed("Gold", "GLD", 18) public {
+    _mint(msg.sender, initialSupply);
+    startTime = _startTime;
+    endTime = _endTime;
   }
 
-  function _transfer(address recipient, uint256 amount, uint256 currentTime, uint256 start, uint256 end) public returns (bool) {
-    require(currentTime >= start && currentTime < end, "Must take place within the given time window");
-    super._transfer(msg.sender, recipient, amount);
+  function transfer(address recipient, uint256 amount) public returns (bool) {
+    require(now >= startTime && now < endTime, "Must take place within the given time window");
+    super.transfer(recipient, amount);
     return true;
   }
 
-  // event Transfer(
-  //   address indexed _from,
-  //   address indexed _to,
-  //   uint256 _value
-  // );
+  function setStartDate(uint40 startDate) public {
+    startTime = startDate;
+  }
 
-  // function checkTime(uint _moment, uint _start, uint _end) public pure returns (bool) {
-  //   require(_moment >= _start && _moment < _end, "Must take place within the given window");
-  // }
-
-  // function transferTokens(address _recipient, uint _value, uint _now, uint _startTime, uint _endTime) public  {
-  //   require(checkTime(_now, _startTime, _endTime), "Not within time constraints");
-  //   emit Transfer(msg.sender, _recipient, _value);
-  // }
+  function setEndDate(uint40 endDate) public {
+    endTime = endDate;
+  }
 }
