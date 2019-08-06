@@ -27,4 +27,11 @@ contract Token is ERC20, ERC20Detailed {
   function setEndDate(uint40 endDate) public {
     endTime = endDate;
   }
+<<<<<<< HEAD
+=======
+
+  function getNow() public view returns (uint) {
+    return now;
+  }
+>>>>>>> wip: time fram error
 }
