@@ -18,11 +18,7 @@ contract('Token', function (accounts) {
 
   describe('transfer', function () {
     it('emits a Transfer event on successful Transfers', async function () {
-<<<<<<< HEAD
-      const { logs } = await token.transfer(recipient, amount, { from: owner });
-=======
       const { logs } = await tokenInstance.transfer(recipient, amount, { from: owner });
->>>>>>> wip: time fram error
       await expectEvent.inLogs(logs, 'Transfer', {to: recipient, value: amount });
     });
     it('should revert if called too early', async function () {

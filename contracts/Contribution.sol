@@ -7,12 +7,11 @@ import "./Token.sol";
 
 contract Contribution {
   uint rate;
-  uint amountTokens;
   uint amountEth;
   Token public tokenContract;
 
-  constructor () public {
-    rate = 1;
+  constructor (address _tokenAddress) public {
+    tokenContract = Token(_tokenAddress);
   }
 
   event Sent(address from, uint value);
@@ -20,14 +19,13 @@ contract Contribution {
   function sendContribution() public payable {
     require(msg.value > 0, "Amount must not be zero.");
     emit Sent(msg.sender, msg.value);
-    amountTokens = msg.value * rate;
-    sendTokens(msg.sender);
+    sendTokens(msg.sender, msg.value);
   }
 
-  function sendTokens(address recipient) internal {
+  function sendTokens(address recipient, uint numTokens) internal {
     // less than total supply not balance
-    require(tokenContract.totalSupply() <= amountTokens, "Insufficient amount of tokens.");
-    tokenContract.transfer(recipient, amountTokens);
-    emit Sent(recipient, amountTokens);
+    require(tokenContract.totalSupply() >= numTokens, "Insufficient amount of tokens.");
+    tokenContract.transfer(recipient, numTokens);
+    emit Sent(recipient, numTokens);
   }
 }
