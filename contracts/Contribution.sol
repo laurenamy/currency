@@ -18,8 +18,8 @@ contract Contribution {
 
   function sendContribution() public payable {
     require(msg.value > 0, "Amount must not be zero.");
-    emit Sent(msg.sender, msg.value);
     sendTokens(msg.sender, msg.value);
+    emit Sent(msg.sender, msg.value);
   }
 
   function sendTokens(address recipient, uint numTokens) internal {
