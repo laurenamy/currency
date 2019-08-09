@@ -9,9 +9,8 @@ contract('Contribution', function (accounts) {
   const tokenOwner = accounts[0];
   const donor = accounts[1];
   const notOwner = accounts[2];
-  const amountTokens = 100;
-  const tokenSupply = 1000000;
-  const amountEth = web3.utils.toWei("0.000000000000000005", "ether");
+  const tokenSupply = 1000;
+  const amountEth = web3.utils.toWei(".5", "ether");
 
   beforeEach(async function () {
     token = await Token.new(1533114000, 1596272400, tokenSupply);
@@ -27,28 +26,16 @@ contract('Contribution', function (accounts) {
 
   describe("sendContribution", async function () {
     it("should revert if the amount is less than or equal to zero.", async function () {
-      await expectRevert(contributionInstance.sendContribution({ from: donor, to: tokenOwner, value: 0 }), "Amount must not be zero.");
+      await expectRevert(contributionInstance.sendContribution({ from: donor, value: 0 }), "Amount must not be zero.");
     });
     it("emits a Sent event on successful contribution", async function () {
-      console.dir(Number(amountEth));
-      const tokens = await token.balanceOf(tokenOwner);
-      console.log(tokens.toNumber() + " total tokens")
-      console.log(await web3.eth.getBalance(tokenOwner) + " token owner balance");
-      const tokenContractAmt = await token.balanceOf(tokenAddress)
-      ;
-      console.log(tokenContractAmt.toNumber());
-      const tokenAmount = await token.balanceOf(tokenAddress);
-      console.log(tokenAmount.toNumber());
-      console.log("donor balance " + await web3.eth.getBalance(donor));
       const { logs } = await contributionInstance.sendContribution({ from: donor, value: amountEth });
-      console.log(logs);
-      await expectEvent.inLogs(logs, 'Sent', {from: tokenOwner, value: amountEth});
-
-      console.log(await web3.eth.getBalance(tokenOwner));
-      console.log(await web3.eth.getBalance(donor));
+      await expectEvent.inLogs(logs, 'Sent', {from: donor, value: amountEth});
     });
-      it("should revert if the amount of tokens is greater than the supply", async function () {
-        await expectRevert(contributionInstance.sendContribution({ from: donor, to: tokenOwner, value: tokenSupply+50 }), "Insufficient amount of tokens.");
+    it("should revert if the amount of tokens is greater than the supply", async function () {
+      const a = await token.balanceOf(tokenAddress);
+      console.dir(a.toNumber())
+      await expectRevert(contributionInstance.sendContribution({ from: donor, to: tokenAddress, value: tokenSupply+50 }), "Insufficient amount of tokens.");
     });
   });
 });

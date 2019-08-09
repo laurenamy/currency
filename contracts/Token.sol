@@ -9,14 +9,14 @@ contract Token is ERC20, ERC20Detailed {
 
   mapping(address => Token) public tokens;
   constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply) ERC20Detailed("Gold", "GLD", 18) public {
-    _mint(msg.sender, initialSupply);
+    _mint(address(this), initialSupply);
     startTime = _startTime;
     endTime = _endTime;
   }
 
-  function transfer(address recipient, uint256 amount) public returns (bool) {
+  function transferFrom(address tokenAddress, address recipient, uint256 amount) public returns (bool) {
     require(now >= startTime && now < endTime, "Must take place within the given time window");
-    super.transfer(recipient, amount);
+    super.transferFrom(tokenAddress, recipient, amount);
     return true;
   }
 
@@ -26,9 +26,5 @@ contract Token is ERC20, ERC20Detailed {
 
   function setEndDate(uint40 endDate) public {
     endTime = endDate;
-  }
-
-  function getNow() public view returns (uint) {
-    return now;
   }
 }

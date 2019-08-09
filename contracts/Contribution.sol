@@ -22,10 +22,10 @@ contract Contribution {
     emit Sent(msg.sender, msg.value);
   }
 
-  function sendTokens(address recipient, uint numTokens) internal {
+  function sendTokens(address recipient, uint amountWei) internal {
     // less than total supply not balance
+    uint numTokens = amountWei / 10**18;
     require(tokenContract.totalSupply() >= numTokens, "Insufficient amount of tokens.");
     tokenContract.transfer(recipient, numTokens);
-    emit Sent(recipient, numTokens);
   }
 }
