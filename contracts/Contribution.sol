@@ -16,16 +16,16 @@ contract Contribution {
 
   event Sent(address from, uint value);
 
-  function sendContribution() public payable {
+  function sendContribution(address tokenAddress) public payable {
     require(msg.value > 0, "Amount must not be zero.");
-    sendTokens(msg.sender, msg.value);
+    sendTokens(tokenAddress, msg.sender, msg.value);
     emit Sent(msg.sender, msg.value);
   }
 
-  function sendTokens(address recipient, uint amountWei) internal {
+  function sendTokens(address tokenAddress, address recipient, uint amountWei) internal {
     // less than total supply not balance
     uint numTokens = amountWei / 10**18;
     require(tokenContract.totalSupply() >= numTokens, "Insufficient amount of tokens.");
-    tokenContract.transfer(recipient, numTokens);
+    tokenContract.transferFrom(tokenAddress, recipient, numTokens);
   }
 }

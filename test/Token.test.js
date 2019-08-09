@@ -26,7 +26,7 @@ contract('Token', function (accounts) {
       console.dir(amount);
       const { logs } = await tokenInstance.transferFrom(tokenAddress, recipient, amount);
       console.dir(logs);
-      await expectEvent.inLogs(logs, 'Transfer', { from: tokenAddress, to: recipient, value: amount });
+      await expectEvent.inLogs(logs, 'Transfer', { from: tokenAddress, value: amount });
     });
     // it('should revert if called too early', async function () {
     //   await tokenInstance.setStartDate(1567155600);
