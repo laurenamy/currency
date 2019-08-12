@@ -1,22 +1,20 @@
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
-contract Token is ERC20, ERC20Detailed {
+contract Token is ERC20 {
   uint40 public startTime;
   uint40 public endTime;
-
-  mapping(address => Token) public tokens;
-  constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply) ERC20Detailed("Gold", "GLD", 18) public {
+  constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply)  public payable {
     _mint(msg.sender, initialSupply);
     startTime = _startTime;
     endTime = _endTime;
   }
 
-  function transfer(address recipient, uint256 amount) public returns (bool) {
+  function transferFrom(address owner, address recipient, uint256 amount) public returns (bool) {
     require(now >= startTime && now < endTime, "Must take place within the given time window");
-    super.transfer(recipient, amount);
+    approve(owner, amount);
+    super.transferFrom(owner, recipient, amount);
     return true;
   }
 

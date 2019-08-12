@@ -18,17 +18,17 @@ contract('Token', function (accounts) {
 
   describe('transfer', function () {
     it('emits a Transfer event on successful Transfers', async function () {
-      const { logs } = await token.transfer(recipient, amount, { from: owner });
+      const { logs } = await token.transferFrom(owner, recipient, amount);
       await expectEvent.inLogs(logs, 'Transfer', {to: recipient, value: amount });
     });
     it('should revert if called too early', async function () {
       await tokenInstance.setStartDate(1567155600);
-      await expectRevert.unspecified(tokenInstance.transfer(recipient, amount, { from: owner }));
+      await expectRevert.unspecified(tokenInstance.transferFrom(owner, recipient, amount));
     });
     it('should revert if called too late', async function () {
       await tokenInstance.setEndDate(Math.floor(new Date().getTime()/1000.0));
       await delay(3000);
-      await expectRevert.unspecified(tokenInstance.transfer(recipient, amount, { from: owner }));
+      await expectRevert.unspecified(tokenInstance.transferFrom(owner, recipient, amount));
     });
   });
 });
