@@ -1,5 +1,4 @@
 const { expectRevert, BN, expectEvent, time } = require('openzeppelin-test-helpers');
-const encodeCall = require('zos-lib/lib/helpers/encodeCall').default
 
 const Token = artifacts.require('Token');
 const Contribution = artifacts.require('Contribution');
@@ -8,7 +7,9 @@ contract('Token', function (accounts) {
   const owner = accounts[0];
   const recipient = accounts[1];
   const tokenSupply = new BN(50);
+  const rate = 10**18;
   const amountEth = web3.utils.toWei("1", "ether");
+  const amountTokens = amountEth / rate;
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   beforeEach(async function () {
@@ -27,13 +28,29 @@ contract('Token', function (accounts) {
   });
 
   describe('transfer', function () {
-    it('emits a Transfer event on successful Transfers', async function () {
-      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+    it('emits a Sent event on successful Transfers', async function () {
+      const { logs } = await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+      const event = logs[0].event;
+      assert.equal(event, "Sent");
     });
-    // TO DO
-    // it should decrease tokenSupply by token amount transferred
-    // it should decrease owner balance by token about transferred
-    // it should increase Contribution contract balance by ETH transferred by donor
+    it('should increase the recipient balance by token amount transferred', async function () {
+      let previousAmount = await tokenInstance.balanceOf(recipient);
+      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+      let currentAmount = await tokenInstance.balanceOf(recipient);
+      assert.equal(previousAmount.toNumber() + amountTokens, currentAmount.toNumber());
+    })
+    it('should decrease the owner balance by token amount transferred', async function () {
+      let previousAmount = await tokenInstance.balanceOf(owner);
+      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+      let currentAmount = await tokenInstance.balanceOf(owner);
+      assert.equal(previousAmount - amountTokens, currentAmount.toNumber());
+    });
+    it('should increase Contribution contract balance by ETH transferred by donor', async function () {
+      let previousBalance = await web3.eth.getBalance(contributionAddress);
+      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+      let currentBalance = await web3.eth.getBalance(contributionAddress);
+      assert.equal(Number(previousBalance) + amountEth, Number(currentBalance));
+    });
     it('should revert if called too early', async function () {
       await tokenInstance.setStartDate(1567155600);
       await expectRevert.unspecified(contributionInstance.sendContribution({ from: recipient, value: amountEth }));
