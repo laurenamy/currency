@@ -23,7 +23,6 @@ contract('Contribution', function (accounts) {
 
     contribution = await Contribution.new(tokenAddress);
     contributionAddress = contribution.address;
-    contributionInstance = await Contribution.at(contributionAddress);
 
     // owner gives approval to contributionContract to transfer on their behalf
     await token.approve(contributionAddress, tokenSupply);
@@ -31,13 +30,13 @@ contract('Contribution', function (accounts) {
 
   describe("sendContribution", async function () {
     it("should revert if the amount is less than or equal to zero.", async function () {
-      await expectRevert(contributionInstance.sendContribution({ from: donor, value: 0 }), "Amount must not be zero.");
+      await expectRevert(contribution.sendContribution({ from: donor, value: 0 }), "Amount must not be zero.");
     });
     it("should revert if the amount of tokens is greater than the supply", async function () {
-      await expectRevert(contributionInstance.sendContribution({ from: donor, value: largeAmountEth }), "Insufficient amount of tokens.");
+      await expectRevert(contribution.sendContribution({ from: donor, value: largeAmountEth }), "Insufficient amount of tokens.");
     });
     it("emits a Sent event on successful contribution", async function () {
-      const { logs } = await contributionInstance.sendContribution({ from: donor, value: amountEth });
+      const { logs } = await contribution.sendContribution({ from: donor, value: amountEth });
       await expectEvent.inLogs(logs, 'Sent', {from: donor, value: amountEth});
     });
   });

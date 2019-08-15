@@ -7,6 +7,8 @@ contract Token is Ownable, ERC20 {
   uint40 public startTime;
   uint40 public endTime;
 
+  event UpdatedTime(uint40 time);
+
   constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply) public {
     _mint(msg.sender, initialSupply);
     startTime = _startTime;
@@ -22,9 +24,11 @@ contract Token is Ownable, ERC20 {
 
   function setStartDate(uint40 startDate) public {
     startTime = startDate;
+    emit UpdatedTime(startTime);
   }
 
   function setEndDate(uint40 endDate) public {
     endTime = endDate;
+    emit UpdatedTime(endTime);
   }
 }

@@ -11,9 +11,11 @@ contract('Token', function (accounts) {
   const amountEth = web3.utils.toWei("1", "ether");
   const amountTokens = amountEth / rate;
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const startDate = 1533114000;
+  const endDate = 1596272400;
 
   beforeEach(async function () {
-    token = await Token.new(1533114000, 1596272400, tokenSupply);
+    token = await Token.new(startDate, endDate, tokenSupply);
     // Wednesday, August 1, 2018 9:00:00 AM
     // Saturday, August 1, 2020 9:00:00 AM
     tokenAddress = token.address;
@@ -27,38 +29,41 @@ contract('Token', function (accounts) {
     await token.approve(contributionAddress, tokenSupply);
   });
 
-  describe('transfer', function () {
-    it('emits a Sent event on successful Transfers', async function () {
-      const { logs } = await contributionInstance.sendContribution({ from: recipient, value: amountEth });
-      const event = logs[0].event;
-      assert.equal(event, "Sent");
+  describe('constructor', function () {
+    it('should have the correct startTime attribute', async function () {
+      assert.equal(await token.startTime.call(), startDate);
     });
+    it('should have the correct endTime attribute', async function () {
+      assert.equal(await token.endTime.call(), endDate);
+    });
+  });
+  describe('transferFrom', function () {
     it('should increase the recipient balance by token amount transferred', async function () {
-      let previousAmount = await tokenInstance.balanceOf(recipient);
-      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
-      let currentAmount = await tokenInstance.balanceOf(recipient);
+      let previousAmount = await token.balanceOf(recipient);
+      await contribution.sendContribution({ from: recipient, value: amountEth });
+      let currentAmount = await token.balanceOf(recipient);
       assert.equal(previousAmount.toNumber() + amountTokens, currentAmount.toNumber());
     })
     it('should decrease the owner balance by token amount transferred', async function () {
-      let previousAmount = await tokenInstance.balanceOf(owner);
-      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
-      let currentAmount = await tokenInstance.balanceOf(owner);
+      let previousAmount = await token.balanceOf(owner);
+      await contribution.sendContribution({ from: recipient, value: amountEth });
+      let currentAmount = await token.balanceOf(owner);
       assert.equal(previousAmount - amountTokens, currentAmount.toNumber());
     });
     it('should increase Contribution contract balance by ETH transferred by donor', async function () {
       let previousBalance = await web3.eth.getBalance(contributionAddress);
-      await contributionInstance.sendContribution({ from: recipient, value: amountEth });
+      await contribution.sendContribution({ from: recipient, value: amountEth });
       let currentBalance = await web3.eth.getBalance(contributionAddress);
       assert.equal(Number(previousBalance) + amountEth, Number(currentBalance));
     });
     it('should revert if called too early', async function () {
-      await tokenInstance.setStartDate(1567155600);
-      await expectRevert.unspecified(contributionInstance.sendContribution({ from: recipient, value: amountEth }));
+      await token.setStartDate(1567155600);
+      await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
     });
     it('should revert if called too late', async function () {
-      await tokenInstance.setEndDate(Math.floor(new Date().getTime()/1000.0));
+      await token.setEndDate(Math.floor(new Date().getTime()/1000.0));
       await delay(3000);
-      await expectRevert.unspecified(contributionInstance.sendContribution({ from: recipient, value: amountEth }));
+      await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
     });
   });
 });
