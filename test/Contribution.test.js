@@ -6,6 +6,7 @@ const Contribution = artifacts.require('Contribution');
 const Token = artifacts.require('Token');
 const web3 = new Web3(Web3.givenProvider);
 
+
 contract('Contribution', function (accounts) {
   const tokenOwner = accounts[0];
   const donor = accounts[1];
@@ -38,6 +39,22 @@ contract('Contribution', function (accounts) {
     it("emits a Sent event on successful contribution", async function () {
       const { logs } = await contribution.sendContribution({ from: donor, value: amountEth });
       await expectEvent.inLogs(logs, 'Sent', {from: donor, value: amountEth});
+    });
+    it("should update the donor's balance with the donation they made", async function () {
+      await contribution.sendContribution({ from: donor, value: amountEth });
+      const balance = await contribution.donations(donor);
+      assert.equal(balance, amountEth);
+    });
+  });
+  
+  describe("getContributions", async function () {
+    it("should revert if the address hasn't made a donation", async function () {
+      await expectRevert(contribution.getContributions(donor), "No donations from given address.");
+    });
+    it("should return the amount of ETH a user has donated", async function () {
+      await contribution.sendContribution({ from: donor, value: amountEth });
+      const balance = await contribution.getContributions(donor);
+      assert.equal(balance, amountEth);
     });
   });
 });
