@@ -13,6 +13,7 @@ contract('Token', function (accounts) {
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const startDate = 1533114000;
   const endDate = 1596272400;
+  const testTime = 1563114000;
 
   beforeEach(async function () {
     token = await Token.new(startDate, endDate, tokenSupply);
@@ -64,6 +65,28 @@ contract('Token', function (accounts) {
       await token.setEndDate(Math.floor(new Date().getTime()/1000.0));
       await delay(3000);
       await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
+    });
+  });
+  describe('setStartDate', function () {
+    it('should update the given startTime', async function () {
+      await token.setStartDate(testTime);
+      let time = await token.startTime.call()
+      assert.equal(testTime, time.toNumber());
+    });
+    it('emits an UpdatedTime event when startTime is updated', async function () {
+      const { logs } = await token.setStartDate(testTime);
+      await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
+    });
+  });
+  describe('setEndDate', function () {
+    it('should update the given endTime', async function () {
+      await token.setEndDate(testTime);
+      let time = await token.endTime.call()
+      assert.equal(testTime, time.toNumber());
+    });
+    it('emits an UpdatedTime event when endTime is updated', async function () {
+      const { logs } = await token.setEndDate(testTime);
+      await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
     });
   });
 });
