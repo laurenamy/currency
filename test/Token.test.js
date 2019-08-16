@@ -66,6 +66,10 @@ contract('Token', function (accounts) {
       await delay(3000);
       await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
     });
+    it('should revert if contract is paused', async function () {
+      await token.pause();
+      await expectRevert(contribution.sendContribution({ from: recipient, value: amountEth }), 'Pausable: paused');
+    });
   });
   describe('setStartDate', function () {
     it('should update the given startTime', async function () {

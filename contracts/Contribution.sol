@@ -18,14 +18,21 @@ contract Contribution {
     tokenAddress = Token(_tokenAddress);
   }
 
+  mapping(address => uint256) public donations;
+
   function sendContribution() public payable {
     require(msg.value > 0, "Amount must not be zero.");
     _sendTokens(msg.sender, msg.value);
+    donations[msg.sender] = donations[msg.sender].add(msg.value);
     emit Sent(msg.sender, msg.value);
   }
 
+  function getContributions(address _donor) public view returns (uint256) {
+    require(donations[_donor] != 0, "No donations from given address.");
+    return donations[_donor];
+  }
+
   function _sendTokens(address recipient, uint256 amountWei) internal {
-    // less than total supply not balance
     uint numTokens = amountWei.div(rate);
     require(tokenAddress.totalSupply() >= numTokens, "Insufficient amount of tokens.");
     tokenAddress.transferFrom(recipient, numTokens);
