@@ -22,8 +22,8 @@ contract Contribution {
 
   function sendContribution() public payable {
     require(msg.value > 0, "Amount must not be zero.");
-    donations[msg.sender] += msg.value;
     _sendTokens(msg.sender, msg.value);
+    donations[msg.sender] = donations[msg.sender].add(msg.value);
     emit Sent(msg.sender, msg.value);
   }
 
