@@ -70,6 +70,13 @@ contract('Token', function (accounts) {
       await token.pause();
       await expectRevert(contribution.sendContribution({ from: recipient, value: amountEth }), 'Pausable: paused');
     });
+    it('should revert if owner has not given approval', async function () {
+      newContribution = await Contribution.new(tokenAddress);
+      await expectRevert.unspecified(newContribution.sendContribution({ from: recipient, value: amountEth }));
+    });
+    it('should revert if transferFrom is not called by Contribution contract', async function () {
+      await expectRevert.unspecified(token.transferFrom(owner, amountTokens, { from: recipient }));
+    });
   });
   describe('setStartDate', function () {
     it('should update the given startTime', async function () {
