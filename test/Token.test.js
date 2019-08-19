@@ -88,6 +88,9 @@ contract('Token', function (accounts) {
       const { logs } = await token.setStartDate(testTime);
       await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
     });
+    it('should revert if not called by the contract owner', async function () {
+      await expectRevert.unspecified(await token.setStartDate(testTime, { from: accounts[2] }));
+    });
   });
   describe('setEndDate', function () {
     it('should update the given endTime', async function () {
@@ -98,6 +101,9 @@ contract('Token', function (accounts) {
     it('emits an UpdatedTime event when endTime is updated', async function () {
       const { logs } = await token.setEndDate(testTime);
       await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
+    });
+    it('should revert if not called by the contract owner', async function () {
+
     });
   });
 });
