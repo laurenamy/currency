@@ -89,7 +89,7 @@ contract('Token', function (accounts) {
       await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
     });
     it('should revert if not called by the contract owner', async function () {
-      await expectRevert.unspecified(await token.setStartDate(testTime, { from: accounts[2] }));
+      await expectRevert(token.setStartDate(testTime, { from: accounts[2] }), 'Ownable: caller is not the owner');
     });
   });
   describe('setEndDate', function () {
@@ -103,7 +103,7 @@ contract('Token', function (accounts) {
       await expectEvent.inLogs(logs, 'UpdatedTime', testTime);
     });
     it('should revert if not called by the contract owner', async function () {
-
+      await expectRevert(token.setStartDate(testTime, { from: accounts[2] }), 'Ownable: caller is not the owner');
     });
   });
 });
