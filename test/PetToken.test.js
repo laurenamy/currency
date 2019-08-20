@@ -35,12 +35,9 @@ contract('PetToken', function (accounts) {
       assert.equal(petToken.petType, petType);
       assert.equal(petToken.age.toNumber(), petAge.toNumber());
     });
-  });
-  describe("getPet", async function () {
-    // verify pet ID
-    // it('should revert if given an invalid petId', async function () {
-    //   await pet.mint(petName, petType, petAge, { from: tokenOwner });
-    //   await expectRevert.unspecified(pet.getPet(-1, { from: tokenOwner }));
-    // });
+    it('should revert if the contract is paused', async function () {
+      pet.pause()
+      await expectRevert(pet.mint(petName, petType, petAge), 'Pausable: paused');
+    })
   });
 });

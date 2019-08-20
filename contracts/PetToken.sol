@@ -1,10 +1,9 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
-contract PetToken is Pausable, Ownable, ERC721Full("PetToken", "PET") {
+contract PetToken is Pausable, ERC721Full("PetToken", "PET") {
 
   struct Pet {
     string name;
