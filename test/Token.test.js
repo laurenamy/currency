@@ -66,10 +66,6 @@ contract('Token', function (accounts) {
       await delay(3000);
       await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
     });
-    it('should revert if contract is paused', async function () {
-      await token.pause();
-      await expectRevert(contribution.sendContribution({ from: recipient, value: amountEth }), 'Pausable: paused');
-    });
     it('should revert if owner has not given approval', async function () {
       newContribution = await Contribution.new(tokenAddress);
       await expectRevert.unspecified(newContribution.sendContribution({ from: recipient, value: amountEth }));
