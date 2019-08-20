@@ -45,6 +45,10 @@ contract('Contribution', function (accounts) {
       const balance = await contribution.donations(donor);
       assert.equal(balance, amountEth);
     });
+    it('should revert if contract is paused', async function () {
+      await contribution.pause();
+      await expectRevert(contribution.sendContribution({ from: donor, value: amountEth }), 'Pausable: paused');
+    });
   });
   
   describe("getContributions", async function () {

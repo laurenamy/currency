@@ -5,8 +5,9 @@ pragma solidity ^0.5.0;
 
 import "./Token.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
-contract Contribution {
+contract Contribution is Pausable {
   using SafeMath for uint;
 
   uint256 private rate = 10**18;
@@ -20,7 +21,7 @@ contract Contribution {
 
   mapping(address => uint256) public donations;
 
-  function sendContribution() public payable {
+  function sendContribution() public payable whenNotPaused {
     require(msg.value > 0, "Amount must not be zero.");
     _sendTokens(msg.sender, msg.value);
     donations[msg.sender] = donations[msg.sender].add(msg.value);
