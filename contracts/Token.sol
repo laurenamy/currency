@@ -18,7 +18,13 @@ contract Token is Ownable, ERC20 {
   /****************
   FUNCTIONS
   *****************/
-  constructor(uint40 _startTime, uint40 _endTime, uint256 initialSupply) public {
+  constructor(
+    uint40 _startTime,
+    uint40 _endTime,
+    uint256 initialSupply
+  )
+  public
+  {
     _mint(msg.sender, initialSupply);
     startTime = _startTime;
     endTime = _endTime;
@@ -31,7 +37,12 @@ contract Token is Ownable, ERC20 {
   * @param recipient The account receiving the tokens
   * @param amount The amount of tokens to be transfered
   */
-  function transferFrom(address recipient, uint256 amount) public returns (bool) {
+  function transferFrom(
+    address recipient,
+    uint256 amount
+  )
+  public
+  returns (bool) {
     require(now >= startTime && now < endTime, "Must take place within the given time window");
     address owner = this.owner();
     super.transferFrom(owner, recipient, amount);
@@ -41,7 +52,6 @@ contract Token is Ownable, ERC20 {
   /**
   * @dev Sets the startTime for when tokens can begin to be transferred
   * @param startDate The time to set the startTime to
-  * @param
   */
   function setStartDate(uint40 startDate) public onlyOwner {
     startTime = startDate;
@@ -51,7 +61,6 @@ contract Token is Ownable, ERC20 {
   /**
   * @dev Sets the endTime for when tokens can no longer be transferred
   * @param endDate The time to set the endTime to
-  * @param
   */
   function setEndDate(uint40 endDate) public onlyOwner {
     endTime = endDate;

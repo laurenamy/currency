@@ -27,6 +27,8 @@ contract Contribution is Pausable {
     tokenAddress = Token(_tokenAddress);
   }
 
+  // CONTRIBUTION STATE //
+
   /**
   * @dev Sends a contribution to the contract and calls _sendTokens
   * in return

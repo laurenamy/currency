@@ -1,11 +1,9 @@
-
 const { expectThrow, expectRevert, BN, expectEvent, time } = require('openzeppelin-test-helpers');
 const Web3 = require('web3');
 
 const Contribution = artifacts.require('Contribution');
 const Token = artifacts.require('Token');
 const web3 = new Web3(Web3.givenProvider);
-
 
 contract('Contribution', function (accounts) {
   const tokenOwner = accounts[0];
@@ -24,6 +22,7 @@ contract('Contribution', function (accounts) {
 
     contribution = await Contribution.new(tokenAddress);
     contributionAddress = contribution.address;
+    contributionInstance = await Contribution.at(contributionAddress);
 
     // owner gives approval to contributionContract to transfer on their behalf
     await token.approve(contributionAddress, tokenSupply);
@@ -51,7 +50,7 @@ contract('Contribution', function (accounts) {
     });
   });
   
-  describe("getContributions", async function () {
+ describe("getContributions", async function () {
     it("should revert if the address hasn't made a donation", async function () {
       await expectRevert(contribution.getContributions(donor), "No donations from given address.");
     });
