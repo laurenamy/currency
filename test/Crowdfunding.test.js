@@ -59,6 +59,15 @@ contract('Crowdfunding', function (accounts) {
     it('should revert if the project owner does not have any tokens', async function () {
       await expectRevert(crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: accounts[3] }), 'User must hold tokens to create a project');
     });
+    it('should revert if the project title entered is blank', async function () {
+      await expectRevert(crowdfund.createProject("", tokenGoal, duration, projectStart, { from: owner }), 'Project must have a name');
+    });
+    it('should revert if the project token goal is zero', async function () {
+      await expectRevert(crowdfund.createProject(title, 0, duration, projectStart, { from: owner }), "Token goal must be greater than zero");
+    });
+    it('should revert if the project duration is zero', async function () {
+      await expectRevert(crowdfund.createProject(title, tokenGoal, 0, projectStart, { from: owner }), "Project duration must be greater than zero")
+    })
   });
   describe('getProjectIds', function () {
     it('should return an array of the correct length', async function () {
@@ -69,7 +78,7 @@ contract('Crowdfunding', function (accounts) {
       assert.equal(projectIds.length, 3);
     });
     it('should revert if there are no project ids', async function () {
-      await expectRevert(crowdfund.getProjectIds(), 'There are no project ids to return');
+      await expectRevert(crowdfund.getProjectIds(), 'There must be project Ids to return');
     });
   });
   describe('makeDonation', function () {
@@ -103,9 +112,9 @@ contract('Crowdfunding', function (accounts) {
     it('should increase the amount of funding a user has given a project', async function () {
       let { logs } = await crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: accOwner });
       let projectId = logs[0].args.projectId.toNumber();
-      let previousFunding = await crowdfund.getUserProjectFunding(donor, projectId);
+      let previousFunding = await crowdfund.getUserDonation(donor, projectId);
       await crowdfund.makeDonation(projectId, amountTokens.toNumber(), { from: donor });
-      let currentFunding = await crowdfund.getUserProjectFunding(donor, projectId);
+      let currentFunding = await crowdfund.getUserDonation(donor, projectId);
       assert.equal(currentFunding - amountTokens, previousFunding);
     });
     it('should revert if past the time limit', async function () {
@@ -126,7 +135,14 @@ contract('Crowdfunding', function (accounts) {
       let projectId = logs[0].args.projectId.toNumber();
       await crowdfund.makeDonation(projectId, amountTokens, { from: donor });
       await crowdfund.updateProjectStart(failProjectStart, projectId);
-      await expectRevert(crowdfund.processRefund(projectId, donor, { from: owner }), "Funding goal has been met");
+      await expectRevert(crowdfund.processRefund(projectId, donor, { from: owner }), "Funding goal must not be met");
+    });
+    it('should revert if not called by the contract owner', async function () {
+      let { logs } = await crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: owner });
+      let projectId = logs[0].args.projectId.toNumber();
+      await crowdfund.makeDonation(projectId, amountTokens, { from: donor });
+      await crowdfund.updateProjectStart(failProjectStart, projectId);
+      await expectRevert(crowdfund.processRefund(projectId, donor, { from: accOwner }), "Ownable: caller is not the owner");
     });
     it('should refund the correct amount of tokens to the donor', async function () {
       let { logs } = await crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: owner });
@@ -147,6 +163,26 @@ contract('Crowdfunding', function (accounts) {
       await crowdfund.processRefund(projectId, donor, { from: accOwner });
       let currentBalance = await token.balanceOf(accOwner);
       await assert.equal(currentBalance.toNumber(), previousBalance.toNumber() - amountTokens);
+    });
+    it('should reset the amount of funding a project has', async function () {
+      let { logs } = await crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: accOwner });
+      let projectId = logs[0].args.projectId.toNumber();
+      await crowdfund.makeDonation(projectId, amountTokens, { from: donor });
+      let previousBalance = await token.balanceOf(accOwner);
+      await crowdfund.updateProjectStart(failProjectStart, projectId);
+      await crowdfund.processRefund(projectId, donor, { from: accOwner });
+      let funding = await crowdfund.getFunds(projectId);
+      await assert.equal(funding.toNumber(), 0);
+    });
+    it('should reset the amount of funding a user has given a project', async function () {
+      let { logs } = await crowdfund.createProject(title, tokenGoal, duration, projectStart, { from: accOwner });
+      let projectId = logs[0].args.projectId.toNumber();
+      await crowdfund.makeDonation(projectId, amountTokens, { from: donor });
+      let previousBalance = await token.balanceOf(accOwner);
+      await crowdfund.updateProjectStart(failProjectStart, projectId);
+      await crowdfund.processRefund(projectId, donor, { from: accOwner });
+      let userFunding = await crowdfund.getUserDonation(donor, projectId);
+      await assert.equal(userFunding.toNumber(), 0);
     });
   });
   describe('updateProjectStart', function() {

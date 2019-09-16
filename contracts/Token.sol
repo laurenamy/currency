@@ -4,9 +4,10 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract Token is Ownable, ERC20 {
-  /****************
-  GLOBAL CONSTANTS
-  *****************/
+
+  /***************
+  INTERNAL ACCOUNTING
+  ***************/
   uint40 public startTime; // start of when tokens can be purchased
   uint40 public endTime;  // end of when tokens can be purchased
 
@@ -41,7 +42,7 @@ contract Token is Ownable, ERC20 {
     address recipient,
     uint256 amount
   )
-  public
+  external
   returns (bool) {
     require(now >= startTime && now < endTime, "Must take place within the given time window");
     address owner = this.owner();
@@ -53,7 +54,7 @@ contract Token is Ownable, ERC20 {
   * @dev Sets the startTime for when tokens can begin to be transferred
   * @param startDate The time to set the startTime to
   */
-  function setStartDate(uint40 startDate) public onlyOwner {
+  function setStartDate(uint40 startDate) external onlyOwner {
     startTime = startDate;
     emit UpdatedTime(startTime);
   }
@@ -62,7 +63,7 @@ contract Token is Ownable, ERC20 {
   * @dev Sets the endTime for when tokens can no longer be transferred
   * @param endDate The time to set the endTime to
   */
-  function setEndDate(uint40 endDate) public onlyOwner {
+  function setEndDate(uint40 endDate) external onlyOwner {
     endTime = endDate;
     emit UpdatedTime(endTime);
   }

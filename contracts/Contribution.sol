@@ -12,6 +12,11 @@ contract Contribution is Pausable {
   *****************/
   uint256 private rate = 10**18; // conversation rate
   Token public tokenAddress;  // token instance
+
+
+  /***************
+  INTERNAL ACCOUNTING
+  ***************/
   mapping(address => uint256) public donations; //
 
   /****************
@@ -33,7 +38,7 @@ contract Contribution is Pausable {
   * @dev Sends a contribution to the contract and calls _sendTokens
   * in return
   */
-  function sendContribution() public payable whenNotPaused {
+  function sendContribution() external payable whenNotPaused {
     require(msg.value > 0, "Amount must not be zero.");
     _sendTokens(msg.sender, msg.value);
     donations[msg.sender] = donations[msg.sender].add(msg.value);
@@ -44,7 +49,7 @@ contract Contribution is Pausable {
   * @dev Returns all contributions from the given address
   * @param _donor The address of the donor
   */
-  function getContributions(address _donor) public view returns (uint256) {
+  function getContributions(address _donor) external view returns (uint256) {
     require(donations[_donor] != 0, "No donations from given address.");
     return donations[_donor];
   }
@@ -55,7 +60,7 @@ contract Contribution is Pausable {
   * @param amountWei Amount of wei to be converted to tokens
   */
   function _sendTokens(address recipient, uint256 amountWei) internal {
-    uint numTokens = amountWei.div(rate);
+    uint256 numTokens = amountWei.div(rate);
     require(tokenAddress.totalSupply() >= numTokens, "Insufficient amount of tokens.");
     tokenAddress.transferFrom(recipient, numTokens);
   }
