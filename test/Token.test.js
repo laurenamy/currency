@@ -58,7 +58,7 @@ contract('Token', function (accounts) {
       assert.equal(Number(previousBalance) + amountEth, Number(currentBalance));
     });
     it('should revert if called too early', async function () {
-      await token.setStartDate(1567155600);
+      await token.setStartDate(1596272400);
       await expectRevert.unspecified(contribution.sendContribution({ from: recipient, value: amountEth }));
     });
     it('should revert if called too late', async function () {
